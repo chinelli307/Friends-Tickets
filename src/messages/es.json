@@ -1,0 +1,13 @@
+{
+  "app": {
+    "title": "Gastos",
+    "description": "Gastos compartidos entre amigos"
+  },
+  "home": {
+    "placeholder": "Gastos"
+  },
+  "common": {
+    "loading": "Cargando…",
+    "error": "Algo ha salido mal"
+  }
+}
