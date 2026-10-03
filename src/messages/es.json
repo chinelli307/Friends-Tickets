@@ -4,7 +4,30 @@
     "description": "Gastos compartidos entre amigos"
   },
   "home": {
-    "placeholder": "Gastos"
+    "placeholder": "Gastos",
+    "signedInAs": "Sesión iniciada como",
+    "signOut": "Cerrar sesión"
+  },
+  "login": {
+    "title": "Entrar",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@correo.com",
+    "submit": "Enviar enlace",
+    "sending": "Enviando…",
+    "retry": "Reintentar",
+    "sentTitle": "Revisa tu correo",
+    "sentBody": "Te hemos enviado un enlace para entrar. Ábrelo desde el navegador donde vas a usar la app.",
+    "sentAgain": "Pedir otro enlace",
+    "errors": {
+      "send_failed": "No hemos podido enviar el enlace. Inténtalo de nuevo.",
+      "rate_limited": "Has pedido demasiados enlaces seguidos. Espera un momento e inténtalo de nuevo.",
+      "link_expired": "El enlace ha caducado o ya se ha usado. Pide uno nuevo.",
+      "link_invalid": "El enlace no es válido. Pide uno nuevo.",
+      "missing_code": "El enlace está incompleto. Pide uno nuevo.",
+      "other_browser": "Pide otro enlace desde el navegador donde vas a entrar.",
+      "exchange_failed": "No hemos podido iniciar la sesión con ese enlace. Pide uno nuevo.",
+      "generic": "Algo ha salido mal. Pide un enlace nuevo."
+    }
   },
   "common": {
     "loading": "Cargando…",
