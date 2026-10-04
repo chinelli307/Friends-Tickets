@@ -10,7 +10,7 @@ begin;
 
 create table public.groups (
   id          uuid primary key default gen_random_uuid(),
-  name        text not null check (char_length(name) between 1 and 80),
+  name        text not null check (char_length(btrim(name)) between 1 and 80),
   currency    char(3) not null default 'EUR' check (currency ~ '^[A-Z]{3}$'),
   created_by  uuid references auth.users on delete set null,
   created_at  timestamptz not null default now()
@@ -19,7 +19,7 @@ create table public.groups (
 create table public.members (
   id            uuid primary key default gen_random_uuid(),
   group_id      uuid not null references public.groups on delete cascade,
-  display_name  text not null check (char_length(display_name) between 1 and 60),
+  display_name  text not null check (char_length(btrim(display_name)) between 1 and 60),
   user_id       uuid references auth.users on delete set null,
   created_at    timestamptz not null default now(),
   unique (id, group_id),
@@ -31,7 +31,7 @@ create table public.expenses (
   group_id      uuid not null references public.groups on delete cascade,
   paid_by       uuid not null,
   amount_cents  bigint not null check (amount_cents > 0),
-  description   text not null check (char_length(description) between 1 and 120),
+  description   text not null check (char_length(btrim(description)) between 1 and 120),
   spent_on      date not null,
   created_by    uuid references auth.users on delete set null,
   created_at    timestamptz not null default now(),
@@ -126,7 +126,15 @@ create policy expenses_select on public.expenses
 
 create policy expense_splits_select on public.expense_splits
   for select to authenticated
-  using (public.is_group_member(group_id));
+  using (
+    public.is_group_member(group_id)
+    and exists (
+      select 1 from public.expenses e
+      where e.id = expense_id
+        and e.group_id = expense_splits.group_id
+        and e.deleted_at is null
+    )
+  );
 
 -- ---------------------------------------------------------------------------
 -- FUNCIONES DE ESCRITURA
@@ -145,6 +153,12 @@ begin
   if v_uid is null then
     raise exception 'Hace falta iniciar sesión para crear un grupo'
       using errcode = '28000';
+  end if;
+
+  -- Los invitados anónimos no pueden crear grupos (claim is_anonymous del JWT).
+  if coalesce((auth.jwt() ->> 'is_anonymous')::boolean, false) then
+    raise exception 'Los usuarios anónimos no pueden crear grupos'
+      using errcode = '42501';
   end if;
 
   insert into public.groups (name, created_by)
@@ -211,6 +225,11 @@ begin
 
   if p_splits is null or jsonb_typeof(p_splits) <> 'array' or jsonb_array_length(p_splits) = 0 then
     raise exception 'El reparto debe ser un array JSON no vacío'
+      using errcode = '22023';
+  end if;
+
+  if jsonb_array_length(p_splits) > 30 then
+    raise exception 'El reparto no puede tener más de 30 elementos (recibidos: %)', jsonb_array_length(p_splits)
       using errcode = '22023';
   end if;
 
