@@ -21,4 +21,14 @@ describe("safeNext", () => {
     expect(safeNext("/\\evil.com", origin)).toBe("/");
     expect(safeNext("/\\/evil.com", origin)).toBe("/");
   });
+
+  it.each([
+    ["/.//evil.com", "/"],
+    ["/..//evil.com", "/"],
+    ["/\t/evil.com", "/"],
+    ["@evil.com", "/"],
+    ["/%2Fevil.com", "/%2Fevil.com"],
+  ])("normaliza %j a %j", (input, expected) => {
+    expect(safeNext(input, origin)).toBe(expected);
+  });
 });

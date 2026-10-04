@@ -8,7 +8,9 @@ export function safeNext(next: string | null, origin: string): string {
   try {
     const url = new URL(next, origin);
     if (url.origin !== origin) return "/";
-    return `${url.pathname}${url.search}${url.hash}`;
+    const result = `${url.pathname}${url.search}${url.hash}`;
+    if (result.startsWith("//")) return "/";
+    return result;
   } catch {
     return "/";
   }
